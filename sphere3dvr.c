@@ -45,10 +45,9 @@ void loadTexture(const char *filename, GLuint *tex)
     }
     glGenTextures(1, tex);
     glBindTexture(GL_TEXTURE_2D, *tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, sur->w, sur->h, 0, GL_BGR, GL_UNSIGNED_BYTE, sur->pixels);
-    gluBuild2DMipmaps(*tex, 3, sur->w, sur->h, texture_format, GL_UNSIGNED_BYTE, sur->pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, sur->w, sur->h, 0, texture_format, GL_UNSIGNED_BYTE, sur->pixels);
     SDL_FreeSurface(sur);
 }
 
