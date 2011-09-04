@@ -4,6 +4,11 @@ Sphere3DVR
 Simple software which renders viewer put into the sphere.
 Meant to be controlled with Vuzix VR glasses.
 
-Textures can be downloaded from:
+Textures
+========
 
-    http://www.hdrlabs.com/sibl/archive.html
+You can download example sphere textures from hdrlabs.com website[1].
+They are distributed under Creative Commons BY-NC-SA license.
+
+[1] http://www.hdrlabs.com/sibl/archive.html
+

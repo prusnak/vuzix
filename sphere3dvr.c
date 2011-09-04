@@ -51,7 +51,7 @@ void loadTexture(const char *filename, GLuint *tex)
     SDL_FreeSurface(sur);
 }
 
-void initGL(int width, int height)
+void initGL(int width, int height, const char *filename)
 {
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -70,7 +70,7 @@ void initGL(int width, int height)
     gluQuadricTexture(sphere, GL_TRUE);
     gluQuadricNormals(sphere, GLU_SMOOTH);
 
-    loadTexture("test.jpg", &texture);
+    loadTexture(filename, &texture);
 }
 
 void deinitGL()
@@ -83,10 +83,13 @@ void drawGLScene()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
+    glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
-    glTranslatef(0.0f, 0.0f, -6.0f);
     glBindTexture(GL_TEXTURE_2D, texture);
-    gluSphere(sphere, 1.0f, 8, 4);
+    glRotatef(pitch, 1.0f, 0.0f, 0.0f);
+    glRotatef(roll, 0.0f, 1.0f, 0.0f);
+    glRotatef(yaw, 0.0f, 0.0f, 1.0f);
+    gluSphere(sphere, 10.0f, 16, 16);
 
     SDL_GL_SwapBuffers();
 }
@@ -103,8 +106,21 @@ int handleEvents()
     return 0;
 }
 
+void readAngles()
+{
+//    yaw -= 0.2f;
+//    roll -= -0.2f;
+//    pitch -= 0.2f;
+}
+
 int main(int argc, char **argv)
 {
+
+    if (argc < 2) {
+        printf("Usage: sphere3dvr texture\n");
+        return 3;
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "Could not initialize SDL: %s\n", SDL_GetError());
         return 1;
@@ -118,8 +134,9 @@ int main(int argc, char **argv)
 
     SDL_WM_SetCaption("Sphere3DVR", NULL);
 
-    initGL(RES_WIDTH, RES_HEIGHT);
+    initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
     for (;;) {
+        readAngles();
         drawGLScene();
         if (handleEvents()) break;
         SDL_Delay(1);
