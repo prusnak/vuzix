@@ -13,8 +13,8 @@
 #include <GL/glu.h>
 #endif
 
-#define RES_WIDTH  640
-#define RES_HEIGHT 480
+#define RES_WIDTH  1024
+#define RES_HEIGHT 768
 
 GLUquadricObj *sphere;
 GLfloat yaw = 0.0f;
@@ -61,7 +61,7 @@ void initGL(int width, int height, const char *filename)
     glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+    gluPerspective(32.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_TEXTURE_2D);
 
@@ -108,9 +108,15 @@ int handleEvents()
 
 void readAngles()
 {
-//    yaw -= 0.2f;
-//    roll -= -0.2f;
-//    pitch -= 0.2f;
+    #define DEG2RAD (3.1415926535/180)
+    float a, b, c, x, y, z;
+    FILE *f = fopen("/dev/vrtrack", "rt");
+    if (!f) return;
+    fscanf(f, "%f %f %f %f %f %f\n", &a, &b, &c, &x, &y, &z);
+    fclose(f);
+    yaw = -a * 2 - b;
+    pitch = -b;
+    roll = c / 3;
 }
 
 int main(int argc, char **argv)
