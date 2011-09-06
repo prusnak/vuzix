@@ -12,14 +12,15 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
+#include "vuzix.h"
 
 #define RES_WIDTH  1024
 #define RES_HEIGHT 768
 
 GLUquadricObj *sphere;
-GLfloat yaw = 0.0f;
-GLfloat roll = 0.0f;
-GLfloat pitch = 0.0f;
+GLfloat yaw = 0.0f, raw_yaw = 0.0f, zero_yaw = 0.0f;
+GLfloat roll = 0.0f, raw_roll = 0.0f, zero_roll = 0.0f;
+GLfloat pitch = 0.0f, raw_pitch = 0.0f, zero_pitch = 0.0f;
 GLuint texture;
 
 void loadTexture(const char *filename, GLuint *tex)
@@ -101,6 +102,12 @@ int handleEvents()
         if (event.type == SDL_QUIT) return 1;
         if (event.type == SDL_KEYDOWN) {
             if (event.key.keysym.sym == SDLK_ESCAPE) return 1;
+            if (event.key.keysym.sym == SDLK_r) {
+                zero_yaw = raw_yaw;
+                zero_roll = raw_roll;
+                zero_pitch = raw_pitch;
+                return 0;
+            }
         }
     }
     return 0;
@@ -108,15 +115,11 @@ int handleEvents()
 
 void readAngles()
 {
-    #define DEG2RAD (3.1415926535/180)
-    float a, b, c, x, y, z;
-    FILE *f = fopen("/dev/vrtrack", "rt");
-    if (!f) return;
-    fscanf(f, "%f %f %f %f %f %f\n", &a, &b, &c, &x, &y, &z);
-    fclose(f);
-    yaw = -a * 2 - b;
-    pitch = -b;
-    roll = c / 3;
+    vuzix_read(&raw_pitch, &raw_roll, &raw_yaw);
+    // printf("%f %f %f\n", yaw, pitch, roll);
+    yaw   = raw_yaw - zero_yaw;
+    pitch = raw_pitch - zero_pitch;
+    roll  = raw_roll - zero_roll;
 }
 
 int main(int argc, char **argv)
@@ -138,6 +141,8 @@ int main(int argc, char **argv)
         return 2;
     }
 
+    vuzix_open("/dev/hidraw0");
+
     SDL_WM_SetCaption("SphereVR", NULL);
 
     initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
@@ -148,6 +153,8 @@ int main(int argc, char **argv)
         SDL_Delay(1);
     }
     deinitGL();
+
+    vuzix_close();
 
     SDL_Quit();
 
