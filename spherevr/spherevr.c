@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 {
 
     if (argc < 2) {
-        printf("Usage: sphere3dvr texture\n");
+        printf("Usage: spherevr texture\n");
         return 3;
     }
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    SDL_WM_SetCaption("Sphere3DVR", NULL);
+    SDL_WM_SetCaption("SphereVR", NULL);
 
     initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
     for (;;) {
