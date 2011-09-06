@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -19,7 +20,7 @@ struct {
     short my;
     short mz;
     char b15;
-} packet;
+} __attribute__ ((__packed__)) packet;
 
 short aminx = -1, amaxx = 1;
 short aminy = -1, amaxy = 1;
@@ -63,16 +64,16 @@ void vuzix_read_raw(float acc[3], float mag[3])
     // set new limits
     if (aminx > packet.ax) aminx = packet.ax;
     if (amaxx < packet.ax) amaxx = packet.ax;
-    if (aminy > packet.ay) aminx = packet.ay;
-    if (amaxy < packet.ay) amaxx = packet.ay;
-    if (aminz > packet.az) aminx = packet.az;
-    if (amaxz < packet.az) amaxx = packet.az;
+    if (aminy > packet.ay) aminy = packet.ay;
+    if (amaxy < packet.ay) amaxy = packet.ay;
+    if (aminz > packet.az) aminz = packet.az;
+    if (amaxz < packet.az) amaxz = packet.az;
     if (mminx > packet.mx) mminx = packet.mx;
     if (mmaxx < packet.mx) mmaxx = packet.mx;
-    if (mminy > packet.my) mminx = packet.my;
-    if (mmaxy < packet.my) mmaxx = packet.my;
-    if (mminz > packet.mz) mminx = packet.mz;
-    if (mmaxz < packet.mz) mmaxx = packet.mz;
+    if (mminy > packet.my) mminy = packet.my;
+    if (mmaxy < packet.my) mmaxy = packet.my;
+    if (mminz > packet.mz) mminz = packet.mz;
+    if (mmaxz < packet.mz) mmaxz = packet.mz;
     // normalize
     rax[ridx] = ((1.0f * packet.ax - aminx - (amaxx - aminx) / 2) / (amaxx - aminx) * 2);
     ray[ridx] = ((1.0f * packet.ay - aminy - (amaxy - aminy) / 2) / (amaxy - aminy) * 2);

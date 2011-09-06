@@ -14,8 +14,8 @@
 #endif
 #include "vuzix.h"
 
-#define RES_WIDTH  1024
-#define RES_HEIGHT 768
+#define RES_WIDTH  640
+#define RES_HEIGHT 480
 
 GLUquadricObj *sphere;
 GLfloat yaw = 0.0f, raw_yaw = 0.0f, zero_yaw = 0.0f;
