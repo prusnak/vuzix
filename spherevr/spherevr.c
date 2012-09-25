@@ -78,7 +78,7 @@ void drawGLScene()
     glRotatef(pitch, 1.0f, 0.0f, 0.0f);
     glRotatef(roll, 0.0f, 1.0f, 0.0f);
     glRotatef(yaw, 0.0f, 0.0f, 1.0f);
-    gluSphere(sphere, 10.0f, 16, 16);
+    gluSphere(sphere, 10.0f, 32, 16);
 
     SDL_GL_SwapBuffers();
 }
@@ -136,6 +136,7 @@ int main(int argc, char **argv)
     vuzix_open("/dev/hidraw0");
 
     SDL_WM_SetCaption("SphereVR", NULL);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
     for (;;) {
