@@ -12,6 +12,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #endif
+#include <opencv2/core/core_c.h>
 #include "vuzix.h"
 
 #define RES_WIDTH  640
@@ -21,6 +22,7 @@ GLUquadricObj *sphere;
 GLfloat yaw = 0.0f, raw_yaw = 0.0f, zero_yaw = 0.0f;
 GLfloat roll = 0.0f, raw_roll = 0.0f, zero_roll = 0.0f;
 GLfloat pitch = 0.0f, raw_pitch = 0.0f, zero_pitch = 0.0f;
+GLfloat zoom = 1.0f;
 GLuint texture;
 
 void loadTexture(const char *filename, GLuint *tex)
@@ -109,11 +111,15 @@ int handleEvents()
                 return 0;
             }
         }
+        if (event.type == SDL_MOUSEMOTION) {
+            yaw -= event.motion.xrel;
+            pitch += event.motion.yrel;
+        }
     }
     return 0;
 }
 
-void readAngles()
+void readVuzix()
 {
     vuzix_read(&raw_pitch, &raw_roll, &raw_yaw);
     // printf("%f %f %f\n", yaw, pitch, roll);
@@ -147,7 +153,7 @@ int main(int argc, char **argv)
 
     initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
     for (;;) {
-        readAngles();
+        // readVuzix();
         drawGLScene();
         if (handleEvents()) break;
         SDL_Delay(1);
