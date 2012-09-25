@@ -28,7 +28,7 @@ GLuint tex;
 CvCapture *capture;
 IplImage *frame;
 
-void initGL(int width, int height, const char *filename)
+void initGL(int width, int height)
 {
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -52,9 +52,6 @@ void initGL(int width, int height, const char *filename)
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    capture = cvCaptureFromAVI(filename);
-    // frame = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);
 }
 
 void deinitGL()
@@ -116,7 +113,6 @@ void readVuzix()
 
 int main(int argc, char **argv)
 {
-
     if (argc < 2) {
         printf("Usage: spherevr texture\n");
         return 3;
@@ -138,7 +134,16 @@ int main(int argc, char **argv)
     SDL_WM_SetCaption("SphereVR", NULL);
     SDL_WM_GrabInput(SDL_GRAB_ON);
 
-    initGL(RES_WIDTH, RES_HEIGHT, argv[1]);
+    initGL(RES_WIDTH, RES_HEIGHT);
+
+    const char *filename = argv[1];
+    if (filename[strlen(filename)-1] == '4') { // stupid heuristics (mp4 - video, other - image)
+        capture = cvCaptureFromAVI(filename);
+    } else {
+        capture = 0;
+        frame = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);
+    }
+
     for (;;) {
         // readVuzix();
         drawGLScene();
