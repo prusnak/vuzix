@@ -1,7 +1,7 @@
 NAME=spherevr
 CC=gcc
-CFLAGS=$(shell pkg-config --cflags sdl gl glu SDL_image opencv) -Wall
-LIBS=$(shell pkg-config --libs sdl gl glu SDL_image opencv) -lm
+CFLAGS=$(shell pkg-config --cflags sdl gl glu opencv) -Wall
+LIBS=$(shell pkg-config --libs sdl gl glu opencv) -lm
 LDFLAGS=
 OBJ=$(NAME).o vuzix.o
 

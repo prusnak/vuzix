@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <SDL.h>
-#include <SDL_image.h>
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -13,6 +12,8 @@
 #include <GL/glu.h>
 #endif
 #include <opencv2/core/core_c.h>
+#include <opencv2/imgproc/imgproc_c.h>
+#include <opencv2/highgui/highgui_c.h>
 #include "vuzix.h"
 
 #define RES_WIDTH  640
@@ -23,36 +24,9 @@ GLfloat yaw = 0.0f, raw_yaw = 0.0f, zero_yaw = 0.0f;
 GLfloat roll = 0.0f, raw_roll = 0.0f, zero_roll = 0.0f;
 GLfloat pitch = 0.0f, raw_pitch = 0.0f, zero_pitch = 0.0f;
 GLfloat zoom = 1.0f;
-GLuint texture;
-
-void loadTexture(const char *filename, GLuint *tex)
-{
-    GLenum texture_format;
-    GLint nOfColors;
-    SDL_Surface *sur = IMG_Load(filename);
-    if (!sur) return;
-    nOfColors = sur->format->BytesPerPixel;
-    if (nOfColors == 4)
-    {
-        if (sur->format->Rmask == 0x000000ff)
-            texture_format = GL_RGBA;
-        else
-            texture_format = GL_BGRA;
-    } else if (nOfColors == 3) {
-        if (sur->format->Rmask == 0x000000ff)
-            texture_format = GL_RGB;
-        else
-            texture_format = GL_BGR;
-    } else {
-        return;
-    }
-    glGenTextures(1, tex);
-    glBindTexture(GL_TEXTURE_2D, *tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, sur->w, sur->h, 0, texture_format, GL_UNSIGNED_BYTE, sur->pixels);
-    SDL_FreeSurface(sur);
-}
+GLuint tex;
+CvCapture *capture;
+IplImage *frame;
 
 void initGL(int width, int height, const char *filename)
 {
@@ -64,7 +38,8 @@ void initGL(int width, int height, const char *filename)
     glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(32.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+//    gluPerspective(32.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+    gluPerspective(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_TEXTURE_2D);
 
@@ -73,13 +48,19 @@ void initGL(int width, int height, const char *filename)
     gluQuadricTexture(sphere, GL_TRUE);
     gluQuadricNormals(sphere, GLU_SMOOTH);
 
-    loadTexture(filename, &texture);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    capture = cvCaptureFromAVI(filename);
+    // frame = cvLoadImage(filename, CV_LOAD_IMAGE_COLOR);
 }
 
 void deinitGL()
 {
     gluDeleteQuadric(sphere);
-    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &tex);
 }
 
 void drawGLScene()
@@ -88,7 +69,12 @@ void drawGLScene()
     glLoadIdentity();
     glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    if (capture) {
+        frame = cvQueryFrame(capture);
+    }
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frame->width, frame->height, 0, GL_BGR, GL_UNSIGNED_BYTE, frame->imageData);
+
     glRotatef(pitch, 1.0f, 0.0f, 0.0f);
     glRotatef(roll, 0.0f, 1.0f, 0.0f);
     glRotatef(yaw, 0.0f, 0.0f, 1.0f);
@@ -161,7 +147,9 @@ int main(int argc, char **argv)
     deinitGL();
 
     vuzix_close();
-
+    if (capture) {
+        cvReleaseCapture(&capture);
+    }
     SDL_Quit();
 
     return 0;
